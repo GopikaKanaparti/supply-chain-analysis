@@ -10,6 +10,7 @@ file_path = "supermarket_inventory_data_with_warehouse.xlsx"
 df = pd.read_excel(file_path)
 
 print("Original Dataset Shape:", df.shape)
+
 print("\nColumn Names:")
 print(df.columns.tolist())
 
@@ -26,17 +27,26 @@ print(df.dtypes)
 # 3. CHECK DUPLICATE RECORDS
 # ============================================================
 
-print("\nDuplicate Complete Records:", df.duplicated().sum())
-print("Duplicate ProductID:", df["ProductID"].duplicated().sum())
+print("\nDuplicate Complete Records:",
+      df.duplicated().sum())
+
+print(
+    "Duplicate ProductID + WarehouseID:",
+    df.duplicated(
+        subset=["ProductID", "WarehouseID"]
+    ).sum()
+)
 
 # Remove exact duplicate records
 df = df.drop_duplicates()
 
-print("\nShape After Removing Duplicate Records:", df.shape)
-
+print(
+    "\nShape After Removing Duplicates:",
+    df.shape
+)
 
 # ============================================================
-# 4. CONVERT NUMERIC COLUMNS TO NUMERIC TYPE
+# 4. CONVERT NUMERIC COLUMNS
 # ============================================================
 
 numeric_columns = [
@@ -52,7 +62,10 @@ numeric_columns = [
 ]
 
 for column in numeric_columns:
-    df[column] = pd.to_numeric(df[column], errors="coerce")
+    df[column] = pd.to_numeric(
+        df[column],
+        errors="coerce"
+    )
 
 
 print("\nData Types After Numeric Conversion:")
@@ -60,7 +73,7 @@ print(df[numeric_columns].dtypes)
 
 
 # ============================================================
-# 5. CONVERT DATE COLUMNS TO DATETIME
+# 5. CONVERT DATE COLUMNS
 # ============================================================
 
 date_columns = [
@@ -71,7 +84,10 @@ date_columns = [
 ]
 
 for column in date_columns:
-    df[column] = pd.to_datetime(df[column], errors="coerce")
+    df[column] = pd.to_datetime(
+        df[column],
+        errors="coerce"
+    )
 
 
 print("\nDate Data Types:")
@@ -82,34 +98,37 @@ print(df[date_columns].dtypes)
 # 6. CHECK MISSING VALUES
 # ============================================================
 
+print("\nMissing Values:")
+
 missing_values = df.isnull().sum()
 
-print("\nMissing Values:")
-print(missing_values[missing_values > 0])
+print(
+    missing_values[missing_values > 0]
+)
 
 
 # ============================================================
-# 7. HANDLE MISSING VALUES
+# 7. HANDLE MISSING LAST SOLD DATE
 # ============================================================
 
-# LastSoldDate has missing values.
-# We do NOT replace missing dates with fake dates because
-# that would create incorrect sales information.
+# Do NOT insert random dates.
+# Missing dates are kept as NaT because the actual
+# last sold date is not available.
 
-# Keep missing LastSoldDate as NaT.
-# NaT means "Not a Time" and represents a missing datetime value.
-
-print("\nMissing LastSoldDate after cleaning:",
-      df["LastSoldDate"].isna().sum())
+print(
+    "\nMissing LastSoldDate:",
+    df["LastSoldDate"].isna().sum()
+)
 
 
 # ============================================================
-# 8. CHECK NUMERIC CONVERSION CREATED MISSING VALUES
+# 8. CHECK NUMERIC MISSING VALUES
 # ============================================================
 
-print("\nMissing Values After Numeric Conversion:")
+print("\nMissing Numeric Values:")
 
 for column in numeric_columns:
+
     missing = df[column].isna().sum()
 
     if missing > 0:
@@ -117,73 +136,97 @@ for column in numeric_columns:
 
 
 # ============================================================
-# 9. CHECK FOR NEGATIVE INVENTORY VALUES
+# 9. CHECK NEGATIVE INVENTORY
 # ============================================================
 
-negative_inventory = (df["StockQuantity"] < 0).sum()
+negative_inventory = (
+    df["StockQuantity"] < 0
+).sum()
 
-print("\nNegative Inventory Records:", negative_inventory)
+print(
+    "\nNegative Inventory Records:",
+    negative_inventory
+)
 
-if negative_inventory > 0:
-    print("Negative inventory records found:")
-    print(df[df["StockQuantity"] < 0])
+
+# ============================================================
+# 10. CHECK NEGATIVE SALES
+# ============================================================
+
+negative_sales = (
+    df["UnitsSold"] < 0
+).sum()
+
+print(
+    "Negative Sales Records:",
+    negative_sales
+)
+
+
+# ============================================================
+# 11. REMOVE NEGATIVE VALUES
+# ============================================================
+
+if negative_inventory > 0 or negative_sales > 0:
+
+    df = df[
+        (df["StockQuantity"] >= 0) &
+        (df["UnitsSold"] >= 0)
+    ].copy()
+
+    print("\nNegative inventory/sales records removed.")
+
 else:
-    print("No negative inventory values found.")
+
+    print("\nNo negative inventory or sales records found.")
 
 
 # ============================================================
-# 10. CHECK FOR NEGATIVE SALES VALUES
-# ============================================================
-
-negative_sales = (df["UnitsSold"] < 0).sum()
-
-print("\nNegative Sales Records:", negative_sales)
-
-if negative_sales > 0:
-    print("Negative sales records found:")
-    print(df[df["UnitsSold"] < 0])
-else:
-    print("No negative sales values found.")
-
-
-# ============================================================
-# 11. HANDLE NEGATIVE VALUES IF THEY EXIST
-# ============================================================
-
-# Since negative inventory or sales are logically invalid
-# for this dataset, remove such records if they exist.
-
-df = df[
-    (df["StockQuantity"] >= 0) &
-    (df["UnitsSold"] >= 0)
-].copy()
-
-
-# ============================================================
-# 12. FINAL DATA VALIDATION
+# 12. FINAL VALIDATION
 # ============================================================
 
 print("\n========== FINAL VALIDATION ==========")
 
-print("Final Dataset Shape:", df.shape)
+print("Final Dataset Shape:",
+      df.shape)
 
-print("Duplicate Records:", df.duplicated().sum())
+print(
+    "Duplicate Complete Records:",
+    df.duplicated().sum()
+)
 
-print("Duplicate ProductID:",
-      df["ProductID"].duplicated().sum())
+print(
+    "Duplicate ProductID + WarehouseID:",
+    df.duplicated(
+        subset=["ProductID", "WarehouseID"]
+    ).sum()
+)
 
-print("Negative Stock:",
-      (df["StockQuantity"] < 0).sum())
+print(
+    "Negative Stock:",
+    (df["StockQuantity"] < 0).sum()
+)
 
-print("Negative Sales:",
-      (df["UnitsSold"] < 0).sum())
+print(
+    "Negative Sales:",
+    (df["UnitsSold"] < 0).sum()
+)
+
+# ============================================================
+# 13. FINAL MISSING VALUES
+# ============================================================
 
 print("\nFinal Missing Values:")
-print(df.isnull().sum()[df.isnull().sum() > 0])
+
+final_missing = df.isnull().sum()
+
+print(
+    final_missing[final_missing > 0]
+)
 
 
 # ============================================================
-# 13. DISPLAY FINAL DATA TYPES
+# 14. FINAL DATA TYPES
 # ============================================================
 
 print("\nFinal Data Types:")
@@ -191,11 +234,17 @@ print(df.dtypes)
 
 
 # ============================================================
-# 14. SAVE CLEANED DATASET
+# 15. SAVE CLEANED DATASET
 # ============================================================
 
 output_file = "cleaned_supermarket_inventory.xlsx"
 
-df.to_excel(output_file, index=False)
+df.to_excel(
+    output_file,
+    index=False
+)
 
-print("\nCleaned dataset saved as:", output_file)
+print(
+    "\nCleaned dataset saved as:",
+    output_file
+)
