@@ -5,9 +5,9 @@ import numpy as np
 # 1. LOAD DATASET
 # ============================================================
 
-file_path = "supermarket_inventory_data_with_warehouse.xlsx"
+file_path = "supermarket.csv"
 
-df = pd.read_excel(file_path)
+df = pd.read_csv(file_path)
 
 print("Original Dataset Shape:", df.shape)
 
@@ -45,6 +45,7 @@ print(
     df.shape
 )
 
+
 # ============================================================
 # 4. CONVERT NUMERIC COLUMNS
 # ============================================================
@@ -67,7 +68,6 @@ for column in numeric_columns:
         errors="coerce"
     )
 
-
 print("\nData Types After Numeric Conversion:")
 print(df[numeric_columns].dtypes)
 
@@ -88,7 +88,6 @@ for column in date_columns:
         df[column],
         errors="coerce"
     )
-
 
 print("\nDate Data Types:")
 print(df[date_columns].dtypes)
@@ -187,8 +186,10 @@ else:
 
 print("\n========== FINAL VALIDATION ==========")
 
-print("Final Dataset Shape:",
-      df.shape)
+print(
+    "Final Dataset Shape:",
+    df.shape
+)
 
 print(
     "Duplicate Complete Records:",
@@ -212,6 +213,7 @@ print(
     (df["UnitsSold"] < 0).sum()
 )
 
+
 # ============================================================
 # 13. FINAL MISSING VALUES
 # ============================================================
@@ -234,12 +236,12 @@ print(df.dtypes)
 
 
 # ============================================================
-# 15. SAVE CLEANED DATASET
+# 15. SAVE CLEANED DATASET AS CSV
 # ============================================================
 
-output_file = "cleaned_supermarket_inventory.xlsx"
+output_file = "supply_chain_clean.csv"
 
-df.to_excel(
+df.to_csv(
     output_file,
     index=False
 )
