@@ -9,41 +9,30 @@ file_path = "supply_chain_clean.csv"
 
 df = pd.read_csv(file_path)
 
-print("Cleaned Dataset Shape:", df.shape)
-
-print("\nColumn Names:")
-print(df.columns.tolist())
+print("Original Shape:", df.shape)
 
 
 # ============================================================
 # 2. CONVERT DATE COLUMN
 # ============================================================
 
-df["Date"] = pd.to_datetime(
-    df["Date"],
-    errors="coerce"
-)
+df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
 
 
 # ============================================================
-# 3. FEATURE ENGINEERING
-# ============================================================
-
-# ------------------------------------------------------------
-# 3.1 Inventory Value
+# 3. INVENTORY VALUE
 # Inventory Value = Stock Quantity × Unit Price
-# ------------------------------------------------------------
+# ============================================================
 
 df["inventory_value"] = (
     df["StockQuantity"] * df["UnitPrice"]
 )
 
 
-# ------------------------------------------------------------
-# 3.2 Inventory Turnover
+# ============================================================
+# 4. INVENTORY TURNOVER
 # Inventory Turnover = Units Sold / Stock Quantity
-# Avoid division by zero
-# ------------------------------------------------------------
+# ============================================================
 
 df["inventory_turnover"] = np.where(
     df["StockQuantity"] > 0,
@@ -52,9 +41,9 @@ df["inventory_turnover"] = np.where(
 )
 
 
-# ------------------------------------------------------------
-# 3.3 Stock Status
-# ------------------------------------------------------------
+# ============================================================
+# 5. STOCK STATUS
+# ============================================================
 
 def get_stock_status(row):
 
@@ -74,69 +63,38 @@ df["stock_status"] = df.apply(
 )
 
 
-# ------------------------------------------------------------
-# 3.4 Order Month
-# ------------------------------------------------------------
+# ============================================================
+# 6. ORDER MONTH
+# ============================================================
 
 df["order_month"] = df["Date"].dt.month
 
 
 # ============================================================
-# 4. DISPLAY FEATURE-ENGINEERED DATA
+# 7. DISPLAY NEW COLUMNS
 # ============================================================
 
 print("\nFeature Engineering Completed!")
 
-print("\nNew Features:")
-
-print(
-    df[
-        [
-            "ProductID",
-            "StockQuantity",
-            "UnitPrice",
-            "UnitsSold",
-            "ReorderLevel",
-            "inventory_value",
-            "inventory_turnover",
-            "stock_status",
-            "order_month"
-        ]
-    ].head()
-)
+print("\nNew Columns:")
+print(df[
+    [
+        "inventory_value",
+        "inventory_turnover",
+        "stock_status",
+        "order_month"
+    ]
+].head())
 
 
 # ============================================================
-# 5. CHECK STOCK STATUS COUNTS
+# 8. UPDATE SAME CLEANED DATASET
 # ============================================================
-
-print("\nStock Status Distribution:")
-
-print(
-    df["stock_status"].value_counts()
-)
-
-
-# ============================================================
-# 6. FINAL DATASET SHAPE
-# ============================================================
-
-print("\nFinal Dataset Shape:",
-      df.shape)
-
-
-# ============================================================
-# 7. SAVE FEATURE-ENGINEERED DATASET
-# ============================================================
-
-output_file = "supply_chain_feature_engineered.csv"
 
 df.to_csv(
-    output_file,
+    "supply_chain_clean.csv",
     index=False
 )
 
-print(
-    "\nFeature-engineered dataset saved as:",
-    output_file
-)
+print("\nUpdated Dataset Saved Successfully!")
+print("Final Shape:", df.shape)
