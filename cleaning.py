@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 
 # ============================================================
 # 1. LOAD DATASET
@@ -110,9 +109,8 @@ print(
 # 7. HANDLE MISSING LAST SOLD DATE
 # ============================================================
 
-# Do NOT insert random dates.
-# Missing dates are kept as NaT because the actual
-# last sold date is not available.
+# Actual last sold date is not available.
+# Therefore, missing values are kept as NaT.
 
 print(
     "\nMissing LastSoldDate:",
@@ -173,11 +171,15 @@ if negative_inventory > 0 or negative_sales > 0:
         (df["UnitsSold"] >= 0)
     ].copy()
 
-    print("\nNegative inventory/sales records removed.")
+    print(
+        "\nNegative inventory/sales records removed."
+    )
 
 else:
 
-    print("\nNo negative inventory or sales records found.")
+    print(
+        "\nNo negative inventory or sales records found."
+    )
 
 
 # ============================================================
@@ -236,7 +238,7 @@ print(df.dtypes)
 
 
 # ============================================================
-# 15. SAVE CLEANED DATASET AS CSV
+# 15. SAVE CLEANED DATASET
 # ============================================================
 
 output_file = "supply_chain_clean.csv"

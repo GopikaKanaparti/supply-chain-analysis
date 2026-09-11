@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 
 # ============================================================
 # 1. LOAD CLEANED DATASET
@@ -16,7 +15,10 @@ print("Original Shape:", df.shape)
 # 2. CONVERT DATE COLUMN
 # ============================================================
 
-df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
+df["Date"] = pd.to_datetime(
+    df["Date"],
+    errors="coerce"
+)
 
 
 # ============================================================
@@ -25,7 +27,8 @@ df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
 # ============================================================
 
 df["inventory_value"] = (
-    df["StockQuantity"] * df["UnitPrice"]
+    df["StockQuantity"] *
+    df["UnitPrice"]
 )
 
 
@@ -34,10 +37,15 @@ df["inventory_value"] = (
 # Inventory Turnover = Units Sold / Stock Quantity
 # ============================================================
 
-df["inventory_turnover"] = np.where(
-    df["StockQuantity"] > 0,
-    df["UnitsSold"] / df["StockQuantity"],
-    0
+# Default value is 0
+df["inventory_turnover"] = 0
+
+# Calculate only where StockQuantity > 0
+mask = df["StockQuantity"] > 0
+
+df.loc[mask, "inventory_turnover"] = (
+    df.loc[mask, "UnitsSold"] /
+    df.loc[mask, "StockQuantity"]
 )
 
 
@@ -77,18 +85,21 @@ df["order_month"] = df["Date"].dt.month
 print("\nFeature Engineering Completed!")
 
 print("\nNew Columns:")
-print(df[
-    [
-        "inventory_value",
-        "inventory_turnover",
-        "stock_status",
-        "order_month"
-    ]
-].head())
+
+print(
+    df[
+        [
+            "inventory_value",
+            "inventory_turnover",
+            "stock_status",
+            "order_month"
+        ]
+    ].head()
+)
 
 
 # ============================================================
-# 8. UPDATE SAME CLEANED DATASET
+# 8. SAVE UPDATED DATASET
 # ============================================================
 
 df.to_csv(
@@ -96,5 +107,11 @@ df.to_csv(
     index=False
 )
 
-print("\nUpdated Dataset Saved Successfully!")
-print("Final Shape:", df.shape)
+print(
+    "\nUpdated Dataset Saved Successfully!"
+)
+
+print(
+    "Final Shape:",
+    df.shape
+)
